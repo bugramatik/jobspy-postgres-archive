@@ -6,6 +6,7 @@ import logging
 
 from app.config import settings
 from app.cache import cache
+from app.db import archive
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,14 @@ class JobService:
         
         # Cache the results
         cache.set(params, jobs_df)
-        
+
+        # Keep a copy in the Postgres archive so postings can be compared over time
+        try:
+            rows = jobs_df.to_dict("records") if jobs_df is not None and not jobs_df.empty else []
+            archive.upsert_postings(rows, search_term=params.get("search_term"))
+        except Exception as exc:
+            logger.warning(f"Could not archive search results: {exc}")
+
         return jobs_df, False
 
     @staticmethod

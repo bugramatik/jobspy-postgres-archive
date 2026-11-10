@@ -20,7 +20,7 @@ from app.core import config_bridge
 from app.core.logging_config import get_logger, setup_logging
 from app.middleware.rate_limiter import RateLimitMiddleware
 from app.middleware.request_logger import RequestLoggerMiddleware, log_request_middleware
-from app.routes import api, health
+from app.routes import api, archive, health
 from app.utils.env_debugger import log_environment_settings
 from app.utils.error_handlers import (
     general_exception_handler,
@@ -173,6 +173,7 @@ async def log_requests(request: Request, call_next):
 
 # Include routers
 app.include_router(api.router, prefix="/api/v1", tags=["Jobs"])
+app.include_router(archive.router, prefix="/api/v1", tags=["Archive"])
 app.include_router(health.router, tags=["Health"])
 
 @app.get("/", tags=["Info"])
